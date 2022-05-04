@@ -3,6 +3,7 @@
     商家信息
     <view> 电话:888 9999 6666</view>
     <view> 作者邮箱：python2607@163.com</view>
+    <view> 测试1111</view>
   </view>
 </template>
 

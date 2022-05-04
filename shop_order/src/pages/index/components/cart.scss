@@ -1,0 +1,82 @@
+.cart {
+    // width: 75%;
+    // max-height: 60vh;
+    // position: fixed;
+    // top: 0;
+    padding: 20rpx;
+    background-color: rgb(250, 246, 246);
+    margin-bottom: 20rpx;
+    .cart_list_h1 {
+        font-size: 40rpx;
+        font-weight: 800;
+        color: #333;
+    }
+
+    .cart_price {
+        margin-top: 20rpx;
+        font-size: 40rpx;
+        font-weight: 800;
+        color: red;
+    }
+
+    .cart_list {
+        // width: 75%;
+        max-height: 600rpx;
+        // position: fixed;
+        // top: 0;
+        // padding: 20rpx;
+        // background-color: rgb(250, 246, 246);
+        // margin-bottom: 20rpx;
+
+        .cart_list_item {
+            padding: 20rpx;
+            background-color: rgb(241, 237, 237);
+            border-radius: 10rpx;
+            box-shadow: 0 0 10rpx #ccc;
+
+            .cart_list_item_info {
+                position: relative;
+                display: flex;
+                justify-content: space-between;
+
+                button {
+                    position: absolute;
+                    left: 0;
+                    bottom: 0;
+                    height: 40rpx;
+                    line-height: 40rpx;
+                    padding: 0 15rpx;
+                    border: 1px solid #ccc;
+                    margin-right: 20rpx;
+
+                    &:active {
+                        background-color: #ccc;
+                    }
+                }
+
+                .cart_list_item_info_name {
+                    font-size: 30rpx;
+                    font-weight: 800;
+                    color: #333;
+                }
+
+                .cart_list_item_info_value {
+                    text-align: right;
+                    font-size: 30rpx;
+                    font-weight: 800;
+                    color: #333;
+
+                    .cart_list_item_info_price {
+                        color: red;
+                    }
+
+                    .cart_list_item_info_price_item {
+                        font-size: 30rpx;
+                        font-weight: 800;
+                        color: #333;
+                    }
+                }
+            }
+        }
+    }
+}

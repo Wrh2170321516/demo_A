@@ -1,5 +1,9 @@
 <template>
-  <view class="content">
+  <view
+    class="content"
+    @touchstart="index_touchstart"
+    @touchend="index_touchend"
+  >
     <!-- <view class="User_info"> 益职院专送 </view> -->
     <usermsg v-if="pageScrollToValue"></usermsg>
     <view class="menu">
@@ -48,61 +52,64 @@
           </scroll-view>
           <view class="menu_bottom_bottom">
             <!-- 购物车清单 -->
-            <view class="cart" v-if="shopping_cart_visible">
-              <view class="cart_list_h1">{{
-                shopping_cart.length
-                  ? `共${shopping_cart.length}件商品`
-                  : "你还没有选购任何商品"
-              }}</view>
-              <view class="cart_price">
-                总金额: ￥{{ orders_data.total_price.toFixed(2) }}
-              </view>
-              <scroll-view
-                class="cart_list"
-                scroll-y="true"
-                scroll-with-animation="true"
-              >
-                <view
-                  class="cart_list_item"
-                  v-for="(item, index) in shopping_cart"
-                  :key="index"
+            <view
+              class="cart_mask"
+              v-bind:style="{ left: shopping_cart_left + 'vw' }"
+              v-if="shopping_cart_visible"
+            >
+              <view class="cart">
+                <view class="cart_list_h1">{{
+                  shopping_cart.length
+                    ? `共${shopping_cart.length}件商品`
+                    : "你还没有选购任何商品"
+                }}</view>
+                <view class="cart_price">
+                  总金额: ￥{{ orders_data.total_price.toFixed(2) }}
+                </view>
+                <scroll-view
+                  class="cart_list"
+                  scroll-y="true"
+                  scroll-with-animation="true"
                 >
-                  <view class="cart_list_item_info">
-                    <view class="cart_list_item_info_name">{{
-                      item.name
-                    }}</view>
-                    <button
-                      @click="delete_shopping_cart(index)"
-                      type="warn"
-                      size="mini"
-                    >
-                      删除
-                    </button>
-                    <view class="cart_list_item_info_value">
-                      <view class="cart_list_item_info_price"
-                        >￥{{ item.price }}</view
-                      >
-                      <view v-for="item1 in item.data" :key="item1.id">{{
-                        item1.value
+                  <view
+                    class="cart_list_item"
+                    v-for="(item, index) in shopping_cart"
+                    :key="index"
+                  >
+                    <view class="cart_list_item_info">
+                      <view class="cart_list_item_info_name">{{
+                        item.name
                       }}</view>
+                      <button
+                        @click="delete_shopping_cart(index)"
+                        type="warn"
+                        size="mini"
+                      >
+                        删除
+                      </button>
+                      <view class="cart_list_item_info_value">
+                        <view class="cart_list_item_info_price"
+                          >￥{{ item.price }}</view
+                        >
+                        <view v-for="item1 in item.data" :key="item1.id">{{
+                          item1.value
+                        }}</view>
+                      </view>
                     </view>
                   </view>
-                </view>
-              </scroll-view>
-              <button
-                type="warn"
-                size="mini"
-                @click="shopping_cart_visible = !shopping_cart_visible"
-              >
-                关闭购物车
-              </button>
+                </scroll-view>
+                <button type="warn" size="mini" @click="close_shopping_cart">
+                  关闭购物车
+                </button>
+              </view>
+              <view class="cart_mask_A" @click="close_shopping_cart"></view>
             </view>
 
             <!-- 展开购物车 -->
             <button
               type="warn"
               size="mini"
-              @click="shopping_cart_visible = !shopping_cart_visible"
+              @click="close_shopping_cart"
               v-if="!shopping_cart_visible"
             >
               {{ shopping_cart_visible ? "关闭购物车" : "展开购物车" }}
@@ -1040,6 +1047,21 @@ export default {
       },
       // 防抖
       debounceTimer: null,
+      // 窗口信息
+      window_info: {
+        width: 0,
+        height: 0,
+      },
+      // 手指在主页滑动的距离
+      index_touch_distance: {
+        // 点击前
+        prior: {
+          x: 0,
+          y: 0,
+        },
+      },
+      // 购物车left
+      shopping_cart_left: -75,
     };
   },
   onLoad() {
@@ -1071,6 +1093,11 @@ export default {
   onShow() {
     // 获取高度
     function getRightblock() {
+      // 获取窗口信息
+      let window_infoA = wx.getWindowInfo();
+      this.window_info.width = window_infoA.windowWidth;
+      this.window_info.height = window_infoA.windowHeight;
+      // 获取右侧容器高度
       const query = wx.createSelectorQuery();
       query.selectAll(".rightblock").boundingClientRect();
       query.selectViewport().scrollOffset();
@@ -1212,6 +1239,35 @@ export default {
       this.shopping_cart.forEach((item) => {
         this.orders_data.total_price += item.price;
       });
+    },
+
+    // 购物车开关
+    close_shopping_cart() {
+      if (this.shopping_cart_visible) {
+        this.shopping_cart_left = -75;
+        setTimeout(() => {
+          this.shopping_cart_visible = false;
+        }, 400);
+      } else {
+        // console.log("打开购物车");
+        this.shopping_cart_visible = true;
+        setTimeout(() => {
+          this.shopping_cart_left = 0;
+        }, 0);
+      }
+    },
+    // 主页触摸开始
+    index_touchstart(e) {
+      this.index_touch_distance.prior.x = e.touches[0].pageX;
+    },
+    // 主页触摸结束
+    index_touchend(e) {
+      let DifX = this.index_touch_distance.prior.x - e.changedTouches[0].pageX;
+      if (this.shopping_cart_visible && DifX > this.window_info.width / 3) {
+        this.close_shopping_cart();
+      } else if (-DifX > this.window_info.width / 3) {
+        this.close_shopping_cart();
+      }
     },
   },
 };
@@ -1397,80 +1453,94 @@ export default {
       }
     }
   }
-
-  .cart {
-    width: 75%;
-    height: 92%;
+  .cart_mask {
+    width: 100%;
     position: fixed;
     top: 0;
-    padding: 20rpx;
-    background-color: rgb(250, 246, 246);
-    margin-bottom: 20rpx;
-    button {
+    left: 0;
+    transition: left 0.35s;
+    .cart_mask_A {
+      position: fixed;
+      top: 0;
+      width: 100vw;
+      height: 92vh;
+      // background-color: #fff;
+    }
+    .cart {
       position: absolute;
-      bottom: 0;
-      left: 0;
-    }
-    .cart_list_h1 {
-      font-size: 40rpx;
-      font-weight: 800;
-      color: #333;
-    }
-    .cart_price {
-      margin-top: 20rpx;
-      font-size: 40rpx;
-      font-weight: 800;
-      color: red;
-    }
-    .cart_list {
-      // width: 75%;
-      max-height: 75vh;
-      // position: fixed;
-      // top: 0;
-      // padding: 20rpx;
-      // background-color: rgb(250, 246, 246);
-      // margin-bottom: 20rpx;
+      width: 75%;
+      height: 92vh;
+      padding: 20rpx;
+      background-color: rgb(250, 246, 246);
+      margin-bottom: 20rpx;
 
-      .cart_list_item {
-        padding: 20rpx;
-        background-color: rgb(241, 237, 237);
-        border-radius: 10rpx;
-        box-shadow: 0 0 10rpx #ccc;
+      z-index: 999;
+      button {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+      }
+      .cart_list_h1 {
+        font-size: 40rpx;
+        font-weight: 800;
+        color: #333;
+      }
+      .cart_price {
+        margin-top: 20rpx;
+        font-size: 40rpx;
+        font-weight: 800;
+        color: red;
+      }
+      .cart_list {
+        // width: 75%;
+        max-height: 75vh;
+        // position: fixed;
+        // top: 0;
+        // padding: 20rpx;
+        // background-color: rgb(250, 246, 246);
+        // margin-bottom: 20rpx;
 
-        .cart_list_item_info {
-          position: relative;
-          display: flex;
-          justify-content: space-between;
-          button {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 40rpx;
-            line-height: 40rpx;
-            padding: 0 15rpx;
-            border: 1px solid #ccc;
-            margin-right: 20rpx;
-            &:active {
-              background-color: #ccc;
+        .cart_list_item {
+          padding: 20rpx;
+          background-color: rgb(241, 237, 237);
+          border-radius: 10rpx;
+          box-shadow: 0 0 10rpx #ccc;
+
+          .cart_list_item_info {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            button {
+              position: absolute;
+              left: 0;
+              bottom: 0;
+              height: 40rpx;
+              line-height: 40rpx;
+              padding: 0 15rpx;
+              border: 1px solid #ccc;
+              margin-right: 20rpx;
+              &:active {
+                background-color: #ccc;
+              }
             }
-          }
-          .cart_list_item_info_name {
-            font-size: 30rpx;
-            font-weight: 800;
-            color: #333;
-          }
-          .cart_list_item_info_value {
-            text-align: right;
-            font-size: 30rpx;
-            font-weight: 800;
-            color: #333;
-            .cart_list_item_info_price {
-              color: red;
-            }
-            .cart_list_item_info_price_item {
+            .cart_list_item_info_name {
               font-size: 30rpx;
               font-weight: 800;
               color: #333;
+            }
+            .cart_list_item_info_value {
+              text-align: right;
+              font-size: 30rpx;
+              font-weight: 800;
+              color: #333;
+              .cart_list_item_info_price {
+                color: red;
+              }
+              .cart_list_item_info_price_item {
+                font-size: 30rpx;
+                font-weight: 800;
+                color: #333;
+              }
             }
           }
         }

@@ -15,5 +15,6 @@ export default {};
   height: 300rpx;
   background-color: $uni-color-success;
   margin-bottom: 15rpx;
+  
 }
 </style>

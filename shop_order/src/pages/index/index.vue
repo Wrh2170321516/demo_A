@@ -66,38 +66,11 @@
                 <view class="cart_price">
                   总金额: ￥{{ orders_data.total_price.toFixed(2) }}
                 </view>
-                <scroll-view
-                  class="cart_list"
-                  scroll-y="true"
-                  scroll-with-animation="true"
-                >
-                  <view
-                    class="cart_list_item"
-                    v-for="(item, index) in shopping_cart"
-                    :key="index"
-                  >
-                    <view class="cart_list_item_info">
-                      <view class="cart_list_item_info_name">{{
-                        item.name
-                      }}</view>
-                      <button
-                        @click="delete_shopping_cart(index)"
-                        type="warn"
-                        size="mini"
-                      >
-                        删除
-                      </button>
-                      <view class="cart_list_item_info_value">
-                        <view class="cart_list_item_info_price"
-                          >￥{{ item.price }}</view
-                        >
-                        <view v-for="item1 in item.data" :key="item1.id">{{
-                          item1.value
-                        }}</view>
-                      </view>
-                    </view>
-                  </view>
-                </scroll-view>
+                <!-- 滚动的清单 -->
+                <cart-item-scroll
+                  :shopping_cart="shopping_cart"
+                  :styleA="'max-height: 75vh'"
+                ></cart-item-scroll>
                 <button type="warn" size="mini" @click="close_shopping_cart">
                   关闭购物车
                 </button>
@@ -183,11 +156,13 @@
 import goods from "./components/menu_item.vue";
 import user_msg from "./components/merchant_msg.vue";
 import orders from "./components/orders.vue";
+import cart_item_scroll from "./components/cart_item_scroll.vue";
 export default {
   components: {
     goods,
     usermsg: user_msg,
     orders,
+    "cart-item-scroll": cart_item_scroll,
   },
   data() {
     return {
@@ -1263,9 +1238,13 @@ export default {
     // 主页触摸结束
     index_touchend(e) {
       let DifX = this.index_touch_distance.prior.x - e.changedTouches[0].pageX;
-      if (this.shopping_cart_visible && DifX > this.window_info.width / 3) {
+      if (this.shopping_cart_visible && DifX > this.window_info.width / 4) {
         this.close_shopping_cart();
-      } else if (-DifX > this.window_info.width / 3) {
+      } else if (
+        !this.shopping_cart_visible &&
+        -DifX > this.window_info.width / 4
+      ) {
+        // 手指向右滑动
         this.close_shopping_cart();
       }
     },
@@ -1493,57 +1472,12 @@ export default {
       }
       .cart_list {
         // width: 75%;
-        max-height: 75vh;
+        // height: 75vh;
         // position: fixed;
         // top: 0;
         // padding: 20rpx;
         // background-color: rgb(250, 246, 246);
         // margin-bottom: 20rpx;
-
-        .cart_list_item {
-          padding: 20rpx;
-          background-color: rgb(241, 237, 237);
-          border-radius: 10rpx;
-          box-shadow: 0 0 10rpx #ccc;
-
-          .cart_list_item_info {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            button {
-              position: absolute;
-              left: 0;
-              bottom: 0;
-              height: 40rpx;
-              line-height: 40rpx;
-              padding: 0 15rpx;
-              border: 1px solid #ccc;
-              margin-right: 20rpx;
-              &:active {
-                background-color: #ccc;
-              }
-            }
-            .cart_list_item_info_name {
-              font-size: 30rpx;
-              font-weight: 800;
-              color: #333;
-            }
-            .cart_list_item_info_value {
-              text-align: right;
-              font-size: 30rpx;
-              font-weight: 800;
-              color: #333;
-              .cart_list_item_info_price {
-                color: red;
-              }
-              .cart_list_item_info_price_item {
-                font-size: 30rpx;
-                font-weight: 800;
-                color: #333;
-              }
-            }
-          }
-        }
       }
     }
   }

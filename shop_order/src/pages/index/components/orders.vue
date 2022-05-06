@@ -68,7 +68,7 @@
       <view class="cart_price">
         总金额: ￥{{ AData.total_price.toFixed(2) }}
       </view>
-      <scroll-view
+      <!-- <scroll-view
         class="cart_list"
         scroll-y="true"
         scroll-with-animation="true"
@@ -95,14 +95,22 @@
             </view>
           </view>
         </view>
-      </scroll-view>
+      </scroll-view> -->
+      <cart-item-scroll
+        :shopping_cart="AData.shopping_cart"
+        :styleA="'max-height: 50vh'"
+      ></cart-item-scroll>
     </view>
     <button @click="ordersConfirm">关闭</button>
   </scroll-view>
 </template>
 
 <script>
+import cart_item_scroll from "./cart_item_scroll.vue";
 export default {
+  components: {
+    "cart-item-scroll": cart_item_scroll,
+  },
   props: ["AData"],
   data() {
     return {
@@ -222,60 +230,6 @@ export default {
     font-size: 40rpx;
     font-weight: 800;
     color: red;
-  }
-  .cart_list {
-    // width: 75%;
-    max-height: 600rpx;
-    // position: fixed;
-    // top: 0;
-    // padding: 20rpx;
-    // background-color: rgb(250, 246, 246);
-    // margin-bottom: 20rpx;
-
-    .cart_list_item {
-      padding: 20rpx;
-      background-color: rgb(241, 237, 237);
-      border-radius: 10rpx;
-      box-shadow: 0 0 10rpx #ccc;
-
-      .cart_list_item_info {
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        button {
-          position: absolute;
-          left: 0;
-          bottom: 0;
-          height: 40rpx;
-          line-height: 40rpx;
-          padding: 0 15rpx;
-          border: 1px solid #ccc;
-          margin-right: 20rpx;
-          &:active {
-            background-color: #ccc;
-          }
-        }
-        .cart_list_item_info_name {
-          font-size: 30rpx;
-          font-weight: 800;
-          color: #333;
-        }
-        .cart_list_item_info_value {
-          text-align: right;
-          font-size: 30rpx;
-          font-weight: 800;
-          color: #333;
-          .cart_list_item_info_price {
-            color: red;
-          }
-          .cart_list_item_info_price_item {
-            font-size: 30rpx;
-            font-weight: 800;
-            color: #333;
-          }
-        }
-      }
-    }
   }
 }
 </style>
